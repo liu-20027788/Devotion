@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>给你的一封小情书</title>
+  <style>
+    :root { --bg1:#0f1020; --bg2:#1b1e3a; --card:#ffffff12; --text:#fff; --sub:#d7d7ff; --btn:#ff4d6d; }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 20% 20%, #2d2f66 0%, var(--bg1) 45%, #070812 100%),
+                  radial-gradient(800px 600px at 80% 30%, #5a2a5a 0%, transparent 60%),
+                  radial-gradient(900px 700px at 50% 90%, #1d5a6b 0%, transparent 60%);
+      color:var(--text); font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+      overflow:hidden;
+      padding:24px;
+    }
+    .stars i{
+      position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
+      opacity:.85; animation: twinkle 2.8s infinite ease-in-out;
+    }
+    @keyframes twinkle{ 0%,100%{ transform:scale(.7); opacity:.35;} 50%{ transform:scale(1.2); opacity:1;} }
+    .card{
+      width:min(520px, 92vw);
+      background: linear-gradient(180deg, #ffffff18, #ffffff0e);
+      border:1px solid #ffffff22;
+      backdrop-filter: blur(10px);
+      border-radius:18px;
+      padding:22px 18px;
+      box-shadow: 0 18px 50px #00000055;
+      position:relative;
+    }
+    .title{ font-size:20px; font-weight:700; letter-spacing:.3px; margin:0 0 8px; }
+    .subtitle{ margin:0 0 16px; color:var(--sub); line-height:1.6; font-size:14px; }
+    .msg{
+      background: var(--card);
+      border:1px solid #ffffff1a;
+      border-radius:14px;
+      padding:14px 14px;
+      line-height:1.85;
+      font-size:15px;
+      min-height: 160px;
+      white-space: pre-wrap;
+    }
+    .row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+    button{
+      border:0; padding:12px 14px; border-radius:12px;
+      font-size:15px; font-weight:600;
+      cursor:pointer;
+    }
+    .primary{ background:var(--btn); color:#fff; }
+    .ghost{ background:#ffffff1a; color:#fff; border:1px solid #ffffff22; }
+    .hint{ margin-top:12px; font-size:12px; color:#ffffffb0; line-height:1.6; }
+    .sig{ margin-top:10px; text-align:right; color:#ffffffc8; font-size:13px; }
+    .heart{
+      position:absolute; right:16px; top:16px;
+      width:16px; height:16px; transform: rotate(45deg);
+      background: #ff4d6d;
+      animation: beat 1.2s infinite ease-in-out;
+      box-shadow: 0 0 18px #ff4d6d66;
+    }
+    .heart:before,.heart:after{
+      content:""; position:absolute; width:16px; height:16px; border-radius:50%;
+      background:#ff4d6d;
+    }
+    .heart:before{ left:-8px; top:0; }
+    .heart:after{ left:0; top:-8px; }
+    @keyframes beat{ 0%,100%{ transform:rotate(45deg) scale(1);} 50%{ transform:rotate(45deg) scale(1.18);} }
+    .toast{
+      position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
+      background:#000000b3; color:#fff; padding:10px 12px; border-radius:10px;
+      font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s ease;
+    }
+    .toast.show{ opacity:1; }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+
+  <div class="card">
+    <div class="heart" aria-hidden="true"></div>
+    <h1 class="title" id="title"></h1>
+    <p class="subtitle">我把想说的话，认真写进了这页里。你慢慢看。</p>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="row">
+      <button class="primary" id="btnYes">我愿意</button>
+      <button class="ghost" id="btnMore">再读一遍</button>
+      <button class="ghost" id="btnShare">复制给TA</button>
+    </div>
+
+    <div class="hint">
+      提示：如果你想更“私人定制”，把文案里的细节（第一次见面/一起做过的事）改成你们的回忆，效果会更好。
+    </div>
+    <div class="sig" id="sig"></div>
+  </div>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+    // ====== 只改这里 ======
+    const TA_NAME = "某某";     // 改成对方名字
+    const FROM_NAME = "我";     // 改成你的名字
+    // =====================
+
+    const title = document.getElementById("title");
+    const msg = document.getElementById("msg");
+    const sig = document.getElementById("sig");
+
+    title.textContent = `给 ${TA_NAME} 的一封小情书`;
+    sig.textContent = `—— ${FROM_NAME}`;
+
+    const lines = [
+      `${TA_NAME}：`,
+      ``,
+      `我认真想了很久，还是决定把这句话说出来。`,
+      `我喜欢你，不是突然的冲动，而是反复确认后的心动。`,
+      ``,
+      `我喜欢你说话时的语气，喜欢你认真做事的样子，`,
+      `也喜欢你不经意的小情绪。`,
+      ``,
+      `如果你愿意，`,
+      `我想把“以后”这两个字，写进我们的日常里：`,
+      `一起吃饭、一起散步、一起把普通的日子过得发光。`,
+      ``,
+      `所以——你愿意做我的对象吗？`
+    ];
+
+    function typewriter(textLines, speed=28){
+      msg.textContent = "";
+      const text = textLines.join("\n");
+      let i = 0;
+      const timer = setInterval(() => {
+        msg.textContent = text.slice(0, i++);
+        if (i > text.length) clearInterval(timer);
+      }, speed);
+    }
+    typewriter(lines);
+
+    // 星星背景
+    const stars = document.getElementById("stars");
+    const N = 60;
+    for(let i=0;i<N;i++){
+      const s = document.createElement("i");
+      const x = Math.random()*100;
+      const y = Math.random()*100;
+      const d = 1.5 + Math.random()*2.5;
+      const delay = Math.random()*2.8;
+      s.style.left = x + "vw";
+      s.style.top = y + "vh";
+      s.style.width = d + "px";
+      s.style.height = d + "px";
+      s.style.animationDelay = delay + "s";
+      stars.appendChild(s);
+    }
+
+    const toast = document.getElementById("toast");
+    function showToast(text){
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 1200);
+    }
+
+    document.getElementById("btnMore").addEventListener("click", () => typewriter(lines, 20));
+
+    document.getElementById("btnYes").addEventListener("click", () => {
+      const yesLines = [
+        `${TA_NAME}：`,
+        ``,
+        `谢谢你愿意。`,
+        `从今天开始，我想更认真地喜欢你。`,
+        ``,
+        `我会把你放在心上，`,
+        `也把你的开心与不开心，都当作我的重要事。`,
+        ``,
+        `那我们现在开始，好吗？`
+      ];
+      typewriter(yesLines, 22);
+      showToast("我已经开心到不行了");
+    });
+
+    document.getElementById("btnShare").addEventListener("click", async () => {
+      const text = [
+        `给 ${TA_NAME}：`,
+        `我喜欢你。你愿意做我的对象吗？`,
+        `—— ${FROM_NAME}`
+      ].join("\n");
+      try{
+        await navigator.clipboard.writeText(text);
+        showToast("已复制，去微信粘贴发送吧");
+      }catch(e){
+        // 兼容微信里某些情况下 clipboard API 不可用
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position="fixed";
+        ta.style.opacity="0";
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast("已复制（兼容模式）");
+      }
+    });
+  </script>
+</body>
+</html>
